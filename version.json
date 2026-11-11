@@ -1,8 +1,8 @@
 {
-  "version": "v2.9.2",
-  "version_code": 20261112,
-  "release_date": "2026-11-12",
-  "tarball_size_bytes": 3841201,
-  "title": "v2.9.2a 授权持久化(/data)+未授权全屏激活页+继电器2脚本gpio兼容+语音映射",
-  "changelog": "1. 授权存储迁移到 /data 持久层(修复重启后授权丢失), 旧路径自动迁移\n2. 激活写入 fsync+sync 强制落盘\n3. 未授权时设备屏幕显示独立激活提示页(含本机IP), 激活后自动消失\n4. relay.sh 兼容通道号(1/2)与GPIO编号(63/86)双参数\n5. 语音控制映射(voice_map.json)随包发布, 网页可编辑\n6. relay.sh 补全 direction 初始化(修复重启后继电器2失控)"
+  "version": "v2.9.3",
+  "version_code": 20261113,
+  "release_date": "2026-11-13",
+  "tarball_size_bytes": 3841628,
+  "title": "v2.9.3 授权路径稳定化(/data/scripts)+未授权全屏激活页+fast takeover",
+  "changelog": "1. 授权存储定版 /data/scripts/license.json(最稳定配置目录), 三级链式迁移\n2. 激活写入 fsync+sync 强制落盘(修复重启丢授权)\n3. 未授权时屏幕显示独立全屏激活指引页(含本机IP), 激活后自动消失\n4. 设置/控制中心不受影响(仅顶部提示条)\n5. 未授权时触摸实体动作安全拦截(屏幕指引可见)\n6. fast takeover: 开机 ~10s 仪表盘接管(显示模块提前加载)\n7. relay.sh direction 自检(重启后继电器首次点击即有效)\n8. inotify 授权写入监控(lic_watch, 异常抓写者 pid)"
 }
