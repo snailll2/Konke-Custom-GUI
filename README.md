@@ -1,7 +1,6 @@
 # Moore 4c Custom GUI — Konke 面板自研固件发布仓
 
-本仓库承载 **Konke Moore 4c 智能面板** 自研固件的 OTA 发布物。
-完整源码见私有仓 `moore4c-src`。
+本仓库承载 **Konke Moore 4c 智能面板** 自研固件的 OTA 发布物与安装工具。
 
 ## 当前固件
 
@@ -69,10 +68,6 @@ ssh root@192.168.50.120          # 密码在提示时输入
 ├── release/
 │   └── s1e_custom_gui_latest.tar.gz   固件包（30 文件平铺，OTA 安装格式）
 └── install/
-    └── install.sh                     一键安装脚本
+    ├── install.sh                     一键安装脚本（Mac/Linux, 带 expect）
+    └── device_install.sh              设备端脚本（ssh 进面板后直接跑）
 ```
-
-## 源码
-
-完整源码（含米家模块、语音中继、授权体系、构建管线）:
-`https://github.com/snailll2/moore4c-src`（私有，需授权访问）
