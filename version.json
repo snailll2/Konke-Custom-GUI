@@ -2,7 +2,7 @@
   "version": "v2.9.2",
   "version_code": 20261112,
   "release_date": "2026-11-12",
-  "tarball_size_bytes": 541,
+  "tarball_size_bytes": 3841201,
   "title": "v2.9.2a 授权持久化(/data)+未授权全屏激活页+继电器2脚本gpio兼容+语音映射",
   "changelog": "1. 授权存储迁移到 /data 持久层(修复重启后授权丢失), 旧路径自动迁移\n2. 激活写入 fsync+sync 强制落盘\n3. 未授权时设备屏幕显示独立激活提示页(含本机IP), 激活后自动消失\n4. relay.sh 兼容通道号(1/2)与GPIO编号(63/86)双参数\n5. 语音控制映射(voice_map.json)随包发布, 网页可编辑\n6. relay.sh 补全 direction 初始化(修复重启后继电器2失控)"
 }
