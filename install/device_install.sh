@@ -45,20 +45,10 @@ done
 kill -9 $(ps | grep "httpd -p 8080" | grep -v grep | awk '{print $1}') 2>/dev/null
 sleep 1
 
-# ---------- 3. 幂等部署 (保留授权与用户配置) ----------
+# ---------- 3. 覆盖式部署 (包内同名覆盖, 其余保留; 只有卸载才清空) ----------
 say "部署固件..."
-mkdir -p /tmp/m4c_keep
-for f in license.json voice_map.json sys_settings.json ha_cards.json \
-         ha_config.json layout_p0.json tile_entities.json notify_history.json \
-         energy_stats.json lock_text.json switch_config.json; do
-  [ -f $REL/$f ] && cp -f $REL/$f /tmp/m4c_keep/
-done
 mkdir -p $BASE/bin $BASE/lib $BASE/res $REL /data/www/cgi-bin /etc/config/intercom
 tar -xzf "$PKG" -C $REL/
-for f in $(ls /tmp/m4c_keep 2>/dev/null); do
-  cp -f /tmp/m4c_keep/$f $REL/$f
-done
-rm -rf /tmp/m4c_keep
 cp -f $REL/s1e_standalone_app_konke $BASE/bin/ 2>/dev/null
 cp -f $REL/relay.sh $BASE/bin/ 2>/dev/null
 
