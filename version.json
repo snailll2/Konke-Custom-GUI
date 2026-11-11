@@ -1,0 +1,9 @@
+{
+  "version": "v2.9.1-konke",
+  "version_code": 20261108,
+  "release_date": "2026-11-08",
+  "tarball_size_bytes": 3809856,
+  "title": "v2.9.1-konke 语音-继电器桥接修复 + Web 控制台 cgi-bin 适配版",
+  "changelog": "1. 语音指令→继电器执行链修复：ubus 桥接层拦截 switch 命令路由到 GPIO63/86\n2. Web 控制台适配 busybox httpd cgi-bin 约定，全部 API 走 /cgi-bin/api.cgi\n3. 背光通道定论：本机背光硬件常供不可软件控制，pwm5/lcd_bl 通道排除记录入档\n4. 亮度设置页保留 pwm5 通道调用，供未来硬件变体使用\n5. 主页布局移除第 3 路继电器磁贴，统一为 2 路负载",
+  "tarball_url": "https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz"
+}
