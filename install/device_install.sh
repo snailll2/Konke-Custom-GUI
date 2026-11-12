@@ -67,6 +67,12 @@ tar -xzf "$PKG" -C $OTA_DIR/staging/ || fail "固件包解压失败"
 for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json voice_map.json; do
     [ -f "$REL/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
 done
+# 主题升级: 先解到 .aqgui_new 再原子替换, 解压失败保留旧主题
+mkdir -p /usr/share && rm -rf /usr/share/.aqgui_new && mkdir -p /usr/share/.aqgui_new
+tar -xzf $OTA_DIR/staging/aqgui_theme.tgz -C /usr/share/.aqgui_new/ && {
+  rm -rf /usr/share/aqgui && mv /usr/share/.aqgui_new/aqgui /usr/share/aqgui
+}
+rm -rf /usr/share/.aqgui_new; rm -f $OTA_DIR/staging/aqgui_theme.tgz; rm -f /data/scripts/aqgui_theme.tgz
 cp -f $OTA_DIR/staging/* $REL/ 2>/dev/null
 rm -rf $OTA_DIR
 cp -f $REL/s1e_standalone_app_konke $BASE/bin/ 2>/dev/null

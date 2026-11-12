@@ -92,7 +92,7 @@ ssh root@192.168.50.120          # 密码在提示时输入
 ├── README.md                          本文件
 ├── version.json                       OTA 版本清单（设备检查入口）
 ├── release/
-│   └── s1e_custom_gui_latest.tar.gz   固件包（30 文件平铺，OTA 安装格式）
+│   └── s1e_custom_gui_latest.tar.gz   固件包（32 文件平铺, 内嵌主题包, OTA 安装格式）
 └── install/
     ├── install.sh                     一键安装脚本（Mac/Linux, 带 expect）
     └── device_install.sh              设备端脚本（ssh 进面板后直接跑）
