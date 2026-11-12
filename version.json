@@ -1,8 +1,8 @@
 {
-  "version": "v2.9.7",
-  "version_code": 20261117,
+  "version": "v2.9.8",
+  "version_code": 20261118,
   "release_date": "2026-11-12",
   "tarball_size_bytes": 8670948,
-  "title": "v2.9.7 OTA 同步更新 Web 控制台",
-  "changelog": "1. 修复 OTA 安装不更新 web 文件的问题(原只拷旧布局 /tmp/www 死目录, 现同步刷新 /data/www)\n2. app 启动时 web 副本自愈: 开机自动把 /data/scripts 主副本收敛到 /data/www 与 /tmp/www, 任何升级路径后 web 控制台与屏幕程序同版本\n3. WiFi 配置简化: wpa_supplicant 直用 /data/wpa.conf, save_config 直写持久层, 去掉 /tmp 中转与守护循环回拷\n4. S91 守护循环加 wpa 看门狗: rtl8723ds 驱动崩溃带走 wpa_supplicant 后 15s 内自动拉回\n5. 含 v2.9.6 全部内容: WiFi 行实时状态 / Web 授权激活入口 / 移除 Aqara Cloud 卡 / OTA 版本检查同源\n6. OTA 包内置完整主题(aqgui_theme.tgz 588 文件), 升级即修复主题文件"
+  "title": "v2.9.8 OTA 结构化全栈升级 + 继电器链路修复 + 瘦身",
+  "changelog": "1. OTA 升级改为结构化全栈安装: OTA 即刷新完整运行栈(init.d/主题守卫/启动器), 老 OTA 残留目录自动清理\n2. 继电器 web 后端改走 relay.sh 链路(修复重启后首点静默失败)\n3. 瘦身: 移除 ubus 全链/Aqara 五件套/原厂重复库 13 项(实测无人依赖); wpa 改用原厂栈\n4. web 继电器增加单实例守卫; start.sh 单飞行锁抗残留\n5. WiFi 行实时状态直取内核; wpa 配置损坏自修复\n6. v2.9.7 全部内容(统一包支持全新原厂设备一键安装)"
 }
