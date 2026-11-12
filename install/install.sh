@@ -196,6 +196,10 @@ fi
     sleep 15
     ps | grep s1e_standalone_app_konke | grep -v grep >/dev/null || \
       sh /data/moore4c/start.sh >>/tmp/m4c-boot.log 2>&1
+    # WiFi 配置回拷: 用户通过 Web/App 连接新 WiFi 后, wpa save_config 写在
+    # /tmp/wpa_supplicant.conf, 回拷到 /data 持久层(下次开机生效)
+    cmp -s /tmp/wpa_supplicant.conf /data/wpa.conf 2>/dev/null || \
+      cp -f /tmp/wpa_supplicant.conf /data/wpa.conf 2>/dev/null
   done
 ) &# 2g. 清 AppleDouble 垃圾后打 tar 包 (root 属主, 无 xattr)
 find "$PAY" -name "._*" -o -name ".DS_Store" | xargs rm -f 2>/dev/null
@@ -206,6 +210,8 @@ export COPYFILE_DISABLE=1
 [ -n "$(ls -A "$PAY/cred" 2>/dev/null)" ] && ( cd "$PAY/cred" && tar --uid 0 --gid 0 -czf "$PAY/m4c_cred.tgz" . )
 ( cd "$PAY/init.d"  && tar --uid 0 --gid 0 -czf "$PAY/m4c_init.tgz" . )
 ( cd "$WS/usr/share" && tar --uid 0 --gid 0 --no-xattrs -czf "$PAY/m4c_theme.tgz" aqgui )
+cp -f "$WS/installer/S90app_fastboot" "$PAY/m4c_s90app_fast"
+cp -f "$WS/tools/fb0stop.so" "$PAY/m4c_fb0stop.so"
 
 # ---------- 3. 远程安装脚本 ----------
 cat > "$PAY/install_remote.sh" <<'EOS'
@@ -223,15 +229,20 @@ for f in m4c_root m4c_scripts m4c_www m4c_cred m4c_init m4c_theme; do
 done
 echo "md5 ok"
 
-# 部署 (幂等: 清空旧安装目录)
-rm -rf /data/moore4c /data/scripts /data/www
-mkdir -p /data/scripts /data/www /etc/config/intercom
+# 部署 (覆盖式: 包内同名文件覆盖, 其他文件一律保留; 只有卸载才清空)
+mkdir -p /data/scripts /data/www /etc/config/intercom /data/moore4c
 ( cd /data                && gzip -dc /data/m4c_pkg_m4c_root.tgz    | tar -x )
 ( cd /data/scripts        && gzip -dc /data/m4c_pkg_m4c_scripts.tgz | tar -x )
 ( cd /data/www            && gzip -dc /data/m4c_pkg_m4c_www.tgz     | tar -x )
 [ -f /data/m4c_pkg_m4c_cred.tgz ] && ( cd /etc/config/intercom && gzip -dc /data/m4c_pkg_m4c_cred.tgz | tar -x )
 ( cd /etc/init.d          && gzip -dc /data/m4c_pkg_m4c_init.tgz    | tar -x )
 mkdir -p /usr/share
+# S90app fast-boot 版覆盖(原厂版备份到 /data/S90app.stock; lua 极速直启, 重资产后台化)
+if [ ! -f /data/S90app.stock ] && [ -f /etc/init.d/S90app ]; then
+  cp -f /etc/init.d/S90app /data/S90app.stock
+fi
+cp -f /data/m4c_s90app_fast /etc/init.d/S90app
+chmod +x /etc/init.d/S90app
 rm -rf /usr/share/aqgui
 ( cd /usr/share           && gzip -dc /data/m4c_pkg_m4c_theme.tgz   | tar -x )
 chmod +x /etc/init.d/S91moore4c /data/moore4c/start.sh
