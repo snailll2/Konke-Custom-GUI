@@ -4,5 +4,5 @@
   "release_date": "2026-11-12",
   "tarball_size_bytes": 3844988,
   "title": "v2.9.7 OTA 同步更新 Web 控制台",
-  "changelog": "1. 修复 OTA 安装不更新 web 文件的问题(原只拷旧布局 /tmp/www 死目录, 现同步刷新 /data/www)\n2. app 启动时 web 副本自愈: 无论何种旧安装逻辑, 开机自动把 /data/scripts 主副本收敛到 /data/www 与 /tmp/www, 保证 web 控制台与屏幕程序同版本\n3. S91 守护循环加 wpa 看门狗: rtl8723ds 驱动崩溃带走 wpa_supplicant 后 15s 内自动拉回\n4. 含 v2.9.6 全部内容: WiFi 行实时状态 / Web 授权激活入口 / 移除 Aqara Cloud 卡 / OTA 版本检查同源"
+  "changelog": "1. 修复 OTA 安装不更新 web 文件的问题(原只拷旧布局 /tmp/www 死目录, 现同步刷新 /data/www)\n2. app 启动时 web 副本自愈: 开机自动把 /data/scripts 主副本收敛到 /data/www 与 /tmp/www, 任何升级路径后 web 控制台与屏幕程序同版本\n3. WiFi 配置简化: wpa_supplicant 直用 /data/wpa.conf, save_config 直写持久层, 去掉 /tmp 中转与守护循环回拷\n4. S91 守护循环加 wpa 看门狗: rtl8723ds 驱动崩溃带走 wpa_supplicant 后 15s 内自动拉回\n5. 含 v2.9.6 全部内容: WiFi 行实时状态 / Web 授权激活入口 / 移除 Aqara Cloud 卡 / OTA 版本检查同源"
 }
