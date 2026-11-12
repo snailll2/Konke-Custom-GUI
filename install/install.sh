@@ -71,7 +71,7 @@ cat > "$WORK/install_remote.sh" <<'REOF'
 #!/bin/sh
 FREE_KB=$(df -k /data 2>/dev/null | tail -1 | awk '{print $4}')
 [ -n "$FREE_KB" ] && [ "$FREE_KB" -lt 40960 ] && { echo "DATA-SPACE-LOW: ${FREE_KB}KB"; exit 1; }
-[ -f /data/moore4c/start.sh ] || { echo "NOT-INSTALLED: 设备上无 /data/moore4c/start.sh, 全新原厂设备请先完整刷入固件(见 README)"; exit 1; }
+# 全新原厂设备同样支持: 统一包自带完整运行栈, 首次安装自动接管(见 README)
 OTA_DIR=/data/moore4c/ota
 mkdir -p $OTA_DIR/staging
 tar -xzf /data/moore4c/ota/pkg.tar.gz -C $OTA_DIR/staging/ || { echo "EXTRACT-FAIL"; exit 1; }
@@ -79,12 +79,29 @@ tar -xzf /data/moore4c/ota/pkg.tar.gz -C $OTA_DIR/staging/ || { echo "EXTRACT-FA
 for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json voice_map.json; do
     [ -f "/data/scripts/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
 done
-# 主题升级: 先解到 .aqgui_new 再原子替换, 解压失败保留旧主题
+# 主题升级(仅当本地附带 aqgui_theme.tgz 时执行; 否则保留设备现有主题)
+if [ -f "$OTA_DIR/staging/aqgui_theme.tgz" ]; then
 mkdir -p /usr/share && rm -rf /usr/share/.aqgui_new && mkdir -p /usr/share/.aqgui_new
 tar -xzf $OTA_DIR/staging/aqgui_theme.tgz -C /usr/share/.aqgui_new/ && {
   rm -rf /usr/share/aqgui && mv /usr/share/.aqgui_new/aqgui /usr/share/aqgui
 }
 rm -rf /usr/share/.aqgui_new; rm -f $OTA_DIR/staging/aqgui_theme.tgz; rm -f /data/scripts/aqgui_theme.tgz
+fi
+# 全新/结构化安装: 完整运行栈(busybox 工具链/libs/启动器) + init.d 接管
+if [ -d "$OTA_DIR/staging/moore4c" ]; then
+    mkdir -p /data/moore4c/bin /data/moore4c/lib /data/moore4c/res
+    cp -a $OTA_DIR/staging/moore4c/bin/. /data/moore4c/bin/ 2>/dev/null
+    cp -a $OTA_DIR/staging/moore4c/lib/. /data/moore4c/lib/ 2>/dev/null
+    cp -a $OTA_DIR/staging/moore4c/res/. /data/moore4c/res/ 2>/dev/null
+    cp -f $OTA_DIR/staging/moore4c/start.sh /data/moore4c/start.sh
+    chmod 755 /data/moore4c/start.sh
+    if [ -f /etc/init.d/S90app ] && [ ! -f /etc/init.d/S20app ]; then
+        cp -f /etc/init.d/S90app /data/S90app.stock; rm -f /etc/init.d/S90app
+    fi
+    cp -f $OTA_DIR/staging/init.d/S20app /etc/init.d/S20app 2>/dev/null
+    cp -f $OTA_DIR/staging/init.d/S91moore4c /etc/init.d/S91moore4c 2>/dev/null
+    chmod 755 /etc/init.d/S20app /etc/init.d/S91moore4c 2>/dev/null
+fi
 cp -f $OTA_DIR/staging/* /data/scripts/ 2>/dev/null
 cp -f /data/scripts/s1e_standalone_app_konke /data/moore4c/bin/ 2>/dev/null
 cp -f /data/scripts/relay.sh /data/moore4c/bin/ 2>/dev/null
