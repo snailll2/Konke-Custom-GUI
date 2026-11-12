@@ -75,7 +75,8 @@ FREE_KB=$(df -k /data 2>/dev/null | tail -1 | awk '{print $4}')
 OTA_DIR=/data/moore4c/ota
 mkdir -p $OTA_DIR/staging
 tar -xzf /data/moore4c/ota/pkg.tar.gz -C $OTA_DIR/staging/ || { echo "EXTRACT-FAIL"; exit 1; }
-for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json lock_text.json notify_history.json energy_stats.json voice_map.json tile_entities.json license.json passwd .gesture_guide_seen; do
+# 用户数据默认文件保护清单: 与包内实际存在的默认配置一一对应
+for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json voice_map.json; do
     [ -f "/data/scripts/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
 done
 cp -f $OTA_DIR/staging/* /data/scripts/ 2>/dev/null

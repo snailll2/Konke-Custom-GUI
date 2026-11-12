@@ -63,7 +63,8 @@ mkdir -p $BASE/bin $BASE/lib $BASE/res $REL /data/www/cgi-bin /etc/config/interc
 OTA_DIR=$BASE/ota
 mkdir -p $OTA_DIR/staging
 tar -xzf "$PKG" -C $OTA_DIR/staging/ || fail "固件包解压失败"
-for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json lock_text.json notify_history.json energy_stats.json voice_map.json tile_entities.json license.json passwd .gesture_guide_seen; do
+# 用户数据默认文件保护清单: 与包内实际存在的默认配置一一对应
+for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json voice_map.json; do
     [ -f "$REL/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
 done
 cp -f $OTA_DIR/staging/* $REL/ 2>/dev/null
