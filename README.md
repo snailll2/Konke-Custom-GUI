@@ -58,10 +58,9 @@ done
 
 > 安装脚本内部同样走多镜像回退下载固件包（ghfast / ghproxy / jsdelivr / raw），
 > 覆盖式部署保留授权与全部用户配置。
-> **支持全新原厂设备**：脚本检测到设备无既有安装时，自动改用全量安装包
-> （customgui_full_latest.tar.gz，含 busybox 工具链/运行库/启动器/init.d 模板/主题，
-> 约 14MB），原厂 S90app 自动备份到 /data/S90app.stock 后让位给 fast-boot 接管。
-> 前提：原厂系统完好（/app 与内核模块原封未动）。
+> **支持全新原厂设备**：统一固件包自带完整运行栈（busybox 工具链/运行库/启动器/
+> init.d 模板/主题，约 13.7MB），脚本检测到无既有安装时自动做完整接管，
+> 原厂 S90app 自动备份到 /data/S90app.stock。前提：原厂系统完好（/app 与内核模块原封未动）。
 
 ## 安装（一键脚本，推荐）
 
@@ -125,8 +124,7 @@ ssh root@192.168.50.120          # 密码在提示时输入
 ├── README.md                          本文件
 ├── version.json                       OTA 版本清单（设备检查入口）
 ├── release/
-│   ├── s1e_custom_gui_latest.tar.gz   升级包（32 文件平铺, 内嵌主题包, OTA 安装格式）
-│   └── customgui_full_latest.tar.gz   全新安装全量包（+busybox 栈/libs/启动器/init.d 模板）
+│   └── s1e_custom_gui_latest.tar.gz   统一固件包（全新+升级+OTA 同包: 固件文件+完整运行栈+init.d 模板+主题）
 └── install/
     ├── install.sh                     一键安装脚本（Mac/Linux, 带 expect）
     └── device_install.sh              设备端脚本（ssh 进面板后直接跑）
