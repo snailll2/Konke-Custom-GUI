@@ -1,8 +1,9 @@
 {
-  "version": "v2.9.8",
-  "version_code": 20261118,
-  "release_date": "2026-11-12",
-  "tarball_size_bytes": 8670948,
-  "title": "v2.9.8 OTA 结构化全栈升级 + 继电器链路修复 + 瘦身",
-  "changelog": "1. OTA 升级改为结构化全栈安装: OTA 即刷新完整运行栈(init.d/主题守卫/启动器), 老 OTA 残留目录自动清理\n2. 继电器 web 后端改走 relay.sh 链路(修复重启后首点静默失败)\n3. 瘦身: 移除 ubus 全链/Aqara 五件套/原厂重复库 13 项(实测无人依赖); wpa 改用原厂栈\n4. web 继电器增加单实例守卫; start.sh 单飞行锁抗残留\n5. WiFi 行实时状态直取内核; wpa 配置损坏自修复\n6. v2.9.7 全部内容(统一包支持全新原厂设备一键安装)"
+  "version": "v2.9.9",
+  "version_code": 20261119,
+  "release_date": "2026-11-13",
+  "tarball_size_bytes": 7015283,
+  "tarball_url": "https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz",
+  "title": "v2.9.9 米家双通道并行 + 乐观更新 + 状态回显闭环",
+  "changelog": "1. 米家双通道并行: 本地网关+云 MQTT 常驻(移除云挂起机制), 控制按设备分流(本地表内走网关, 其余云兜底)\n2. 乐观更新: 点击立即生效(乐观值直写实体池+守卫窗10s), MQTT 推送按真值收敛, 轮询只补实际状态\n3. 控制语义: toggle 动作实体改按状态显式发开/关(不再执行设备 toggle 动作), 真按钮类不变\n4. 状态回显闭环: toggle 实体状态镜像 + web API 状态快照(不再 unknown) + 亮度等数值设备级分发\n5. 传感器瓦片重绘: 值居中大字+名称底部小字, bg/border/bg_image 属性全生效(sensor 无状态语义)\n6. 首页瓦片优化: 移除时钟下功率行, 天气云图缩小+状态文字保留\n7. 米家配置持久化修复: user_id 空自愈 + local_gw_ip 不再被配置保存抹掉(米家未连接根因)\n8. 状态行文字与背景同源(消除蓝底+已关闭打架), 池变更即时重绘"
 }
