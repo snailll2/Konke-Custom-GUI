@@ -54,8 +54,13 @@ WITH_CREDS=1 ./install.sh <设备IP>
 | 项 | 值 |
 |---|---|
 | 地址 | `root@<设备IP>` |
-| 密码 | Konke 统一密码（脚本内置，无需手动输入）|
+| **密码** | **`p9z34c`** |
 | 端口 | 22 |
+
+```bash
+ssh root@192.168.50.120
+# 密码: p9z34c
+```
 
 ```bash
 ssh root@192.168.50.120          # 密码在提示时输入
@@ -91,4 +96,92 @@ ssh root@192.168.50.120          # 密码在提示时输入
 └── install/
     ├── install.sh                     一键安装脚本（Mac/Linux, 带 expect）
     └── device_install.sh              设备端脚本（ssh 进面板后直接跑）
+```
+
+
+## FAQ / 排查指南
+
+### Q: WiFi 扫描不到网络 / 扫描列表为空？
+
+按以下顺序排查（SSH 登录设备后执行）：
+
+**1. 确认 wpa_supplicant 正在运行（必须 nl80211 驱动）**
+
+```bash
+ps | grep wpa_supplicant
+# 正确的启动参数必须含 -Dnl80211，例如：
+# wpa_supplicant -B -Dnl80211 -iwlan0 -c /tmp/wpa_supplicant.conf
+# 如果没有此进程，手动启动：
+wpa_supplicant -B -Dnl80211 -iwlan0 -c /tmp/wpa_supplicant.conf
+```
+
+**2. 直接触发扫描，看 wpa_cli 是否返回结果**
+
+```bash
+wpa_cli -i wlan0 scan          # 返回 OK 或 FAIL-BUSY(正常，表示扫描中)
+sleep 4
+wpa_cli -i wlan0 scan_results  # 应列出周围的 AP（bssid/频率/信号/ssid）
+```
+
+- 有结果 → 扫描链路正常，问题在 Web/App 层（重启面板应用即可）
+- `FAIL-BUSY` → 设备正在扫描中，等几秒再取结果
+- 空输出 → 见下一步
+
+**3. 检查 wlan0 接口状态**
+
+```bash
+ifconfig wlan0                 # 应看到 UP BROADCAST MULTICAST
+ip link show wlan0             # 或用 ip 命令
+```
+
+- 没有 UP → 驱动没加载，检查 `lsmod | grep rtl8723`
+- UP 但无 IP → DHCP 问题，`udhcpc -i wlan0 -b -q -t 20` 手动获取
+
+**4. 检查驱动加载**
+
+```bash
+lsmod | grep rtl8723           # 应有 rtl8723ds 模块
+# 没有: insmod /app/nx5Apps/ko/rtl8723ds.ko
+```
+
+**5. 检查天线/硬件**
+
+以上全正常但 scan_results 始终为空 → 硬件天线问题或地区码限制，
+尝试 `wpa_cli -i wlan0 set country CN` 后重新扫描。
+
+### Q: 继电器 1 或 2 重启后点击无效？
+
+原因：GPIO 重启后默认输入方向，relay.sh 旧版本没有 direction 初始化。
+**v2.9.4+ 已修复**（direction 自检）。如仍复现：
+
+```bash
+cat /sys/class/gpio/gpio63/direction   # 应为 out（继电器1）
+cat /sys/class/gpio/gpio86/direction   # 应为 out（继电器2）
+# 若为 in，手动修正：
+echo out > /sys/class/gpio/gpio63/direction
+```
+
+### Q: 授权丢失 / 激活后又变成未激活？
+
+**v2.9.4+ 已修复**（授权文件迁移到 /data/scripts + fsync 强制落盘）。
+如仍复现，SSH 检查文件：
+
+```bash
+ls -la /data/scripts/license.json   # 应为 135 字节左右
+# 为 0 或不存在 → 重新粘贴授权码激活即可
+```
+
+### Q: 屏幕黑屏 / 没有 UI？
+
+1. `ps | grep s1e_standalone` — 确认 app 进程在
+2. `ps | grep main.lua` + `grep ^State /proc/<pid>/status` — lua 应为 T (stopped)
+3. `cat /tmp/m4c-boot.log` — 看 start.sh 是否正常完成
+4. 屏幕仍黑 → 重启设备（断电 10 秒再上电）
+
+### Q: Web 控制台打不开？
+
+```bash
+ps | grep httpd                 # 确认 httpd 进程
+curl -s http://127.0.0.1:8080/ -o /dev/null -w "%{http_code}"   # 应为 200
+# 没有 httpd: sh /data/moore4c/start.sh 手动拉起
 ```
