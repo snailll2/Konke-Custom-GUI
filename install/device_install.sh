@@ -99,6 +99,9 @@ if [ -d "$OTA_DIR/staging/moore4c" ]; then
     chmod 755 /etc/init.d/S20app /etc/init.d/S91moore4c 2>/dev/null
 fi
 cp -f $OTA_DIR/staging/* $REL/ 2>/dev/null
+
+# 米家通用 CA(本地通道网关证书验证用, 非账号机密)
+cp -f $OTA_DIR/staging/mijia_ca.cert /etc/config/intercom/mijia_ca.cert 2>/dev/null || cp -f $REL/mijia_ca.cert /etc/config/intercom/mijia_ca.cert 2>/dev/null
 rm -rf $OTA_DIR
 cp -f $REL/s1e_standalone_app_konke $BASE/bin/ 2>/dev/null
 cp -f $REL/relay.sh $BASE/bin/ 2>/dev/null
