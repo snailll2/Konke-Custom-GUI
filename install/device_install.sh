@@ -58,15 +58,21 @@ sleep 1
 
 # ---------- 3. 覆盖式部署 (包内同名覆盖, 其余保留; 只有卸载才清空) ----------
 say "部署固件..."
-mkdir -p $BASE/bin $BASE/lib $BASE/res $REL /data/www/cgi-bin /tmp/www/cgi-bin /etc/config/intercom
-tar -xzf "$PKG" -C $REL/
+mkdir -p $BASE/bin $BASE/lib $BASE/res $REL /data/www/cgi-bin /etc/config/intercom
+# 走 staging + 用户配置保护(与 OTA 安装逻辑一致): 设备已有的配置永不被包覆盖
+OTA_DIR=$BASE/ota
+mkdir -p $OTA_DIR/staging
+tar -xzf "$PKG" -C $OTA_DIR/staging/ || fail "固件包解压失败"
+for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json lock_text.json notify_history.json energy_stats.json voice_map.json tile_entities.json license.json passwd .gesture_guide_seen; do
+    [ -f "$REL/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
+done
+cp -f $OTA_DIR/staging/* $REL/ 2>/dev/null
+rm -rf $OTA_DIR
 cp -f $REL/s1e_standalone_app_konke $BASE/bin/ 2>/dev/null
 cp -f $REL/relay.sh $BASE/bin/ 2>/dev/null
-# web 控制台在线副本: v12+ docroot=/data/www(start.sh); /tmp/www 为旧布局兜底
+# web 控制台在线副本: v12+ docroot=/data/www(start.sh), /tmp/www 已废弃不分发
 cp -f $REL/index.html /data/www/index.html 2>/dev/null
 cp -f $REL/api.cgi    /data/www/cgi-bin/api.cgi 2>/dev/null
-cp -f $REL/index.html /tmp/www/index.html 2>/dev/null
-cp -f $REL/api.cgi    /tmp/www/cgi-bin/api.cgi 2>/dev/null
 
 # ---------- 4. 权限与授权迁移 ----------
 chmod 755 $BASE/bin/* $REL/api.cgi $REL/relay.sh $REL/do_ota.sh \

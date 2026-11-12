@@ -75,7 +75,7 @@ FREE_KB=$(df -k /data 2>/dev/null | tail -1 | awk '{print $4}')
 OTA_DIR=/data/moore4c/ota
 mkdir -p $OTA_DIR/staging
 tar -xzf /data/moore4c/ota/pkg.tar.gz -C $OTA_DIR/staging/ || { echo "EXTRACT-FAIL"; exit 1; }
-for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json lock_text.json notify_history.json energy_stats.json voice_map.json tile_entities.json license.json passwd .gesture_guide_seen; do
+for CFG in layout_p0.json sys_settings.json ha_config.json ha_cards.json switch_config.json lock_text.json notify_history.json energy_stats.json voice_map.json tile_entities.json license.json passwd .gesture_guide_seen; do
     [ -f "/data/scripts/$CFG" ] && rm -f "$OTA_DIR/staging/$CFG"
 done
 cp -f $OTA_DIR/staging/* /data/scripts/ 2>/dev/null
