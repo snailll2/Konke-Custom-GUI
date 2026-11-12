@@ -10,6 +10,9 @@ set -u
 
 BASE=/data/moore4c
 REL=/data/scripts
+PKG="/tmp/m4c_install_pkg.tar.gz"
+OTA_HOST="raw.githubusercontent.com"
+OTA_PATH="/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz"
 say() { echo "[device-install] $*"; }
 fail() { echo "[安装失败] $*"; exit 1; }
 # 统一包(全新+升级同包): 含完整运行栈/init.d 模板/主题/固件文件
@@ -31,6 +34,7 @@ say "  下载器就绪 ✓"
 # ---------- 1. 下载固件包(多镜像回退: 国内 CDN 优先, raw 兜底) ----------
 say "下载固件包 $(grep -o '"version": *"[^"]*"' $REL/version.json 2>/dev/null | cut -d'"' -f4) ..."
 rm -f "$PKG"
+PKG_NAME="s1e_custom_gui_latest.tar.gz"
 MIRRORS="\
 ghfast.top/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/$PKG_NAME \
 gh-proxy.org/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/$PKG_NAME \
