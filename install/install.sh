@@ -115,11 +115,29 @@ export PATH=$R/bin:$PATH
 # 本地中枢网关(米家 MIPS mTLS 直连, 云通道之外的本地双通道之一)
 export NX5_MIPS_IP=192.168.50.227
 
-# WiFi glue: nl80211 驱动 + 状态栏 SSID 回退源 + save_config 持久化
-# 开机首用户模式下原厂 run.sh 不再运行, wpa_supplicant 由这里自起
-cp -f /data/wpa.conf /tmp/wpa_supplicant.conf 2>/dev/null
+# WiFi glue: nl80211 驱动 + 状态栏 SSID 回退源 + save_config 持久化。
+# wpa 直接用 /data/wpa.conf(持久层): save_config 直写持久文件。
+# 配置文件损坏导致 wpa 启动失败时自动修复: 抢救 network{ssid=..} 块
+# 重建重试 → 仍失败重置骨架(WiFi 需重配, eth0/web 不受影响)。
+WPA_CONF=/data/wpa.conf
+[ -f "$WPA_CONF" ] || printf 'ctrl_interface=/var/run/wpa_supplicant\nap_scan=1\nupdate_config=1\n' > "$WPA_CONF"
+wpa_try_start() {
+  wpa_supplicant -B -Dnl80211 -iwlan0 -c "$WPA_CONF" >/tmp/m4c-wpa.log 2>&1
+  sleep 2
+  ps | grep wpa_supplicant | grep -v grep >/dev/null 2>&1
+}
 if ! ps | grep wpa_supplicant | grep -v grep >/dev/null 2>&1; then
-  wpa_supplicant -B -Dnl80211 -iwlan0 -c /tmp/wpa_supplicant.conf >/tmp/m4c-wpa.log 2>&1
+  if ! wpa_try_start; then
+    cp -f "$WPA_CONF" "$WPA_CONF.bad" 2>/dev/null
+    printf 'ctrl_interface=/var/run/wpa_supplicant\nap_scan=1\nupdate_config=1\n' > "$WPA_CONF"
+    awk '/network[[:space:]]*=[[:space:]]*\{/{b=1;s=""} b{s=s $0 "\n"; if($0~/ssid[[:space:]]*=/)k=1; if($0~/\}/){if(k)printf "%s",s; b=0;k=0}}' "$WPA_CONF.bad" >> "$WPA_CONF"
+    echo "[wifi-glue] config repaired from $WPA_CONF.bad ($(date))" >>/tmp/m4c-boot.log
+    if ! wpa_try_start; then
+      printf 'ctrl_interface=/var/run/wpa_supplicant\nap_scan=1\nupdate_config=1\n' > "$WPA_CONF"
+      echo "[wifi-glue] salvage failed, config reset to skeleton ($(date))" >>/tmp/m4c-boot.log
+      wpa_try_start
+    fi
+  fi
   ( sleep 3; udhcpc -i wlan0 -b -q -t 20 >/dev/null 2>&1 ) &
 fi
 wpa_cli -i wlan0 set update_config 1 >/dev/null 2>&1
@@ -196,10 +214,10 @@ fi
     sleep 15
     ps | grep s1e_standalone_app_konke | grep -v grep >/dev/null || \
       sh /data/moore4c/start.sh >>/tmp/m4c-boot.log 2>&1
-    # WiFi 配置回拷: 用户通过 Web/App 连接新 WiFi 后, wpa save_config 写在
-    # /tmp/wpa_supplicant.conf, 回拷到 /data 持久层(下次开机生效)
-    cmp -s /tmp/wpa_supplicant.conf /data/wpa.conf 2>/dev/null || \
-      cp -f /tmp/wpa_supplicant.conf /data/wpa.conf 2>/dev/null
+    # wpa 看门狗: rtl8723ds 驱动崩溃会带走 wpa_supplicant(socket 消失,
+    # wpa_cli 报 No such file or directory), 这里拉回 + 续 DHCP
+    ps | grep wpa_supplicant | grep -v grep >/dev/null || \
+      sh /data/moore4c/start.sh >>/tmp/m4c-boot.log 2>&1
   done
 ) &# 2g. 清 AppleDouble 垃圾后打 tar 包 (root 属主, 无 xattr)
 find "$PAY" -name "._*" -o -name ".DS_Store" | xargs rm -f 2>/dev/null
