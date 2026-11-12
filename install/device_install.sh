@@ -36,13 +36,22 @@ fi
 [ "$HAVE_CURL" = "1" ] || fail "需要 curl(面板自带或系统)或 $REL/fetch_https.sh"
 say "  下载器就绪 ✓"
 
-# ---------- 1. 下载固件包 ----------
+# ---------- 1. 下载固件包(多镜像回退: 国内 CDN 优先, raw 兜底) ----------
 say "下载固件包 v$(grep -o '"version": *"[^"]*"' $REL/version.json 2>/dev/null | cut -d'"' -f4) ..."
 rm -f "$PKG"
+MIRRORS="\
+ghfast.top/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz \
+gh-proxy.org/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz \
+cdn.jsdelivr.net/gh/snailll2/Konke-Custom-GUI@main/release/s1e_custom_gui_latest.tar.gz \
+https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz"
 if [ "$FETCH" = "__FETCH_HTTPS__" ]; then
   $REL/fetch_https.sh "$OTA_HOST" "$OTA_PATH" "$PKG" 120
 else
-  $FETCH "$PKG" "$OTA_URL"
+  for u in $MIRRORS; do
+    say "  try: $u"
+    rm -f "$PKG"
+    $FETCH "$PKG" "$u" && [ -s "$PKG" ] && break
+  done
 fi
 [ -s "$PKG" ] || fail "固件包下载失败(检查网络)"
 tar -tzf "$PKG" >/dev/null 2>&1 || fail "固件包损坏"

@@ -30,6 +30,36 @@
 - **按键音**：触摸/翻转的提示音代码链路完整（可配置开关），但 Konke 面板无 Aqara 蜂鸣器硬件节点，当前硬件静默。发声需走 CI1302 语音芯片（待语音链解冻后经原厂通道实现）。
 - **语音反馈**：语音识别/播报依赖原厂 lua 链（当前冻结以独占屏幕）。冻结期间语音不可用；解冻方案（pty 中继）代码已就绪待验证。
 
+## 安装方式二：设备端一行命令（无需电脑脚本）
+
+适合手边没有 Linux/macOS 电脑、只有 SSH 终端的情况。SSH 登录面板后直接粘贴整段执行：
+自动寻找可用的 curl（原厂/固件自带，缺失时用 busybox wget 兜底拉取），多镜像回退下载安装脚本并执行：
+
+```sh
+cd /tmp
+C=""
+for p in /data/moore4c/bin/curl /data/nx5_conf/intercom/curl /data/scripts/curl /tmp/curl /usr/bin/curl; do
+    [ -x "$p" ] && C="$p" && break
+done
+if [ -z "$C" ]; then
+    busybox wget -O /tmp/curl "http://master.dl.sourceforge.net/project/aqarahub/binutils/curl?viasf=1" && chmod +x /tmp/curl && C=/tmp/curl
+fi
+for h in "ghfast.top/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main" \
+         "gh-proxy.org/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main" \
+         "cdn.jsdelivr.net/gh/snailll2/Konke-Custom-GUI@main" \
+         "raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main"; do
+    rm -f /tmp/device_install.sh
+    echo "[*] try: $h"
+    "$C" -skfL -m 20 "https://$h/install/device_install.sh" -o /tmp/device_install.sh 2>/dev/null
+    [ -s /tmp/device_install.sh ] && { echo "[*] download ok, installing..."; sh /tmp/device_install.sh; break; }
+    echo "[!] failed, try next one ..."
+done
+```
+
+> 安装脚本内部同样走多镜像回退下载固件包（ghfast / ghproxy / jsdelivr / raw），
+> 覆盖式部署保留授权与全部用户配置。仅适用于已刷入本固件基础的设备；
+> 全新原厂设备请先用「方式一」完整安装。
+
 ## 安装（一键脚本，推荐）
 
 **要求**: macOS/Linux + expect + 设备与电脑同网段
