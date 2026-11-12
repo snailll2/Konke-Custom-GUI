@@ -1,8 +1,8 @@
 {
-  "version": "v2.9.4",
-  "version_code": 20261114,
-  "release_date": "2026-11-14",
-  "tarball_size_bytes": 3841708,
-  "title": "v2.9.4 fast takeover + 继电器2修复 + 授权/语音映射完善",
-  "changelog": "1. fast takeover: 显示模块提前加载, lua 最小环境直启, 开机 ~10s 仪表盘接管\n2. relay.sh 补全 direction 初始化(重启后继电器首次点击即有效), 兼容通道号/GPIO 双参数\n3. 授权存储定版 /data/scripts/license.json + 三级链式迁移 + fsync(重启不丢)\n4. 未授权屏幕独立激活指引页(含本机IP), 设置操作不受影响, 激活自动消失\n5. 语音控制映射(voice_map.json)网页可视化编辑\n6. 安装器覆盖式部署(用户配置/授权/映射升级全保留), 附设备端 ssh 安装脚本"
+  "version": "v2.9.5",
+  "version_code": 20261115,
+  "release_date": "2026-11-15",
+  "tarball_size_bytes": 3841880,
+  "title": "v2.9.5 有线网络IP兜底 + 扫码配置页网络信息完善",
+  "changelog": "1. 扫码配置页 IP 获取改为 wlan0 优先 / eth0 兜底(WiFi 未连时正确显示有线地址)\n2. MAC 地址获取同样支持 eth0 兜底\n3. 授权存储 /data/scripts/license.json + fsync(修复重启丢授权)\n4. 未授权屏幕独立激活指引页, 设置操作不受影响, 激活自动消失\n5. 未授权时触摸实体动作安全拦截\n6. WiFi 扫描黑匣子日志(扫描完成记录 AP 数)"
 }
