@@ -12,7 +12,10 @@ BASE=/data/moore4c
 REL=/data/scripts
 OTA_HOST="raw.githubusercontent.com"
 OTA_PATH="/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz"
+UPG_PKG="s1e_custom_gui_latest.tar.gz"
+FULL_PKG="customgui_full_latest.tar.gz"
 OTA_URL="https://${OTA_HOST}${OTA_PATH}"
+PKG_NAME="$UPG_PKG"; [ "$FULL_MODE" = "1" ] && PKG_NAME="$FULL_PKG"
 PKG=/tmp/m4c_install_pkg.tar.gz
 
 say() { echo "[device-install] $*"; }
@@ -21,8 +24,17 @@ fail() { echo "[安装失败] $*"; exit 1; }
 # ---------- 0. 环境检查 ----------
 say "环境检查..."
 [ -x /bin/busybox ] || fail "不是 Konke Moore 4c 面板(busybox 缺失)"
+# 全新安装(设备上无 start.sh)自动切换全量包(含 busybox 栈/libs/init.d 模板/主题)
+FULL_MODE=0
+[ -f /data/moore4c/start.sh ] || FULL_MODE=1
+if [ "$FULL_MODE" = "1" ]; then
+    say "检测到全新设备(无既有安装), 使用全量安装包..."
+else
+    say "检测到既有安装, 使用升级包..."
+fi
+MIN_KB=40960; [ "$FULL_MODE" = "1" ] && MIN_KB=81920
 FREE_KB=$(df -k /data 2>/dev/null | tail -1 | awk '{print $4}')
-[ -n "$FREE_KB" ] && [ "$FREE_KB" -lt 61440 ] && fail "/data 空间不足(${FREE_KB}KB < 60MB)"
+[ -n "$FREE_KB" ] && [ "$FREE_KB" -lt "$MIN_KB" ] && fail "/data 空间不足(${FREE_KB}KB < $((MIN_KB/1024))MB)"
 say "  /data 可用 ${FREE_KB}KB ✓"
 
 FETCH="curl -skf -m 120 -o"
@@ -40,10 +52,10 @@ say "  下载器就绪 ✓"
 say "下载固件包 v$(grep -o '"version": *"[^"]*"' $REL/version.json 2>/dev/null | cut -d'"' -f4) ..."
 rm -f "$PKG"
 MIRRORS="\
-ghfast.top/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz \
-gh-proxy.org/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz \
-cdn.jsdelivr.net/gh/snailll2/Konke-Custom-GUI@main/release/s1e_custom_gui_latest.tar.gz \
-https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz"
+ghfast.top/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/$PKG_NAME \
+gh-proxy.org/https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/$PKG_NAME \
+cdn.jsdelivr.net/gh/snailll2/Konke-Custom-GUI@main/release/$PKG_NAME \
+https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/$PKG_NAME"
 if [ "$FETCH" = "__FETCH_HTTPS__" ]; then
   $REL/fetch_https.sh "$OTA_HOST" "$OTA_PATH" "$PKG" 120
 else
@@ -82,6 +94,23 @@ tar -xzf $OTA_DIR/staging/aqgui_theme.tgz -C /usr/share/.aqgui_new/ && {
   rm -rf /usr/share/aqgui && mv /usr/share/.aqgui_new/aqgui /usr/share/aqgui
 }
 rm -rf /usr/share/.aqgui_new; rm -f $OTA_DIR/staging/aqgui_theme.tgz; rm -f /data/scripts/aqgui_theme.tgz
+# 全新安装: 完整运行栈(busybox 工具链/libs/启动器/init.d 接管)
+if [ -d "$OTA_DIR/staging/moore4c" ]; then
+    mkdir -p /data/moore4c/bin /data/moore4c/lib /data/moore4c/res
+    cp -a $OTA_DIR/staging/moore4c/bin/. /data/moore4c/bin/ 2>/dev/null
+    cp -a $OTA_DIR/staging/moore4c/lib/. /data/moore4c/lib/ 2>/dev/null
+    cp -a $OTA_DIR/staging/moore4c/res/. /data/moore4c/res/ 2>/dev/null
+    cp -f $OTA_DIR/staging/moore4c/start.sh /data/moore4c/start.sh
+    chmod 755 /data/moore4c/start.sh 2>/dev/null; chmod 755 /data/moore4c/bin/* 2>/dev/null
+    # 原厂 S90app 让位(备份到 /data), 装 fast-boot S20app + S91 gate
+    if [ -f /etc/init.d/S90app ] && [ ! -f /etc/init.d/S20app ]; then
+        cp -f /etc/init.d/S90app /data/S90app.stock 2>/dev/null
+        rm -f /etc/init.d/S90app
+    fi
+    [ -f "$OTA_DIR/staging/init.d/S20app" ] && cp -f "$OTA_DIR/staging/init.d/S20app" /etc/init.d/S20app
+    [ -f "$OTA_DIR/staging/init.d/S91moore4c" ] && cp -f "$OTA_DIR/staging/init.d/S91moore4c" /etc/init.d/S91moore4c
+    chmod 755 /etc/init.d/S20app /etc/init.d/S91moore4c 2>/dev/null
+fi
 cp -f $OTA_DIR/staging/* $REL/ 2>/dev/null
 rm -rf $OTA_DIR
 cp -f $REL/s1e_standalone_app_konke $BASE/bin/ 2>/dev/null
