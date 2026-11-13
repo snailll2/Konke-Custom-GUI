@@ -2,8 +2,8 @@
   "version": "v2.9.12",
   "version_code": 20261122,
   "release_date": "2026-11-13",
-  "tarball_size_bytes": 7030390,
+  "tarball_size_bytes": 7032340,
   "tarball_url": "https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz",
-  "title": "v2.9.12 传感器单位分级渲染 + unit 配置 + web OTA 委托修复",
-  "changelog": "1. 传感器数值+单位分级渲染: 纯数字原生 36px 大字; 数字+单位(31°C/40W)数字大字+单位小字底对齐\n2. 布局瓦片支持 options.unit 单位配置(℃/W/%/kWh 等), 曾不解析致单位永远不显示\n3. 空单位覆盖保护: HA 状态合并不再抹掉布局配置的单位\n4. ℃ 单码点自动展开为 °+C 原生字形\n5. v2.9.11 全部内容(本地控制提速 36 倍/路由表全量/实体名称修复/米家黑匣子)"
+  "title": "v2.9.12 传感器单位分级渲染 + 单位配置 + web 离线更新(上传固件包)",
+  "changelog": "1. ★web 离线更新: 上传本地固件包直接安装(无需设备访问 GitHub), 上传前空间预检+完整性校验\n2. 传感器数值+单位分级渲染: 纯数字原生 36px 大字; 数字+单位数字大字+单位小字底对齐\n3. 布局瓦片支持 options.unit 单位配置; 空单位覆盖保护\n4. v2.9.11 全部内容(本地控制提速 36 倍/路由表全量/实体名称修复/米家黑匣子)"
 }
