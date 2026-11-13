@@ -1,9 +1,9 @@
 {
-  "version": "v2.9.12",
-  "version_code": 20261122,
+  "version": "v2.9.13",
+  "version_code": 20261123,
   "release_date": "2026-11-13",
-  "tarball_size_bytes": 7032340,
+  "tarball_size_bytes": 7032202,
   "tarball_url": "https://raw.githubusercontent.com/snailll2/Konke-Custom-GUI/main/release/s1e_custom_gui_latest.tar.gz",
-  "title": "v2.9.12 传感器单位分级渲染 + 单位配置 + web 离线更新(上传固件包)",
-  "changelog": "1. ★web 离线更新: 上传本地固件包直接安装(无需设备访问 GitHub), 上传前空间预检+完整性校验\n2. 传感器数值+单位分级渲染: 纯数字原生 36px 大字; 数字+单位数字大字+单位小字底对齐\n3. 布局瓦片支持 options.unit 单位配置; 空单位覆盖保护\n4. v2.9.11 全部内容(本地控制提速 36 倍/路由表全量/实体名称修复/米家黑匣子)"
+  "title": "v2.9.13 web 离线更新(上传固件包直接安装) + 安装链健壮性",
+  "changelog": "1. ★web 离线更新: 上传本地固件包直接安装(无需设备访问 GitHub), 上传前空间预检+完整性校验\n2. 安装链健壮性: do_ota.sh 断点续传重试(RAM 紧张 OOM 自愈), web OTA 委托权威脚本(双源漂移修复)\n3. v2.9.12 全部内容(传感器单位分级渲染/unit 配置/本地控制提速 36 倍/路由表全量/黑匣子)"
 }
